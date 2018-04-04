@@ -15,7 +15,6 @@ class rest_handler(web.RequestHandler):
         self.set_header('Access-Control-Allow-Methods', 'POST, GET, OPTIONS')
 
     def post(self):
-        print("I recieved post")
         body = json.loads(self.request.body)
 
         buffer = body['buffer']
@@ -48,11 +47,25 @@ class rest_handler(web.RequestHandler):
         self.finish()
 
 
+class IndexHandler(web.RequestHandler):
+    def get(self):
+        self.render("../example/index.html")
+
+
 app = web.Application([
+    (r'/', IndexHandler),
     (r'/api', rest_handler),
+    (r'/(.*)', web.StaticFileHandler, {'path': '../example'})
+
 ])
 
 if __name__ == '__main__':
-    port = os.environ['PORT'] if os.environ['PORT'] else 8080
+    port = 8080
+
+    try:
+        port = os.environ['PORT']
+    except:
+        pass
+
     app.listen(port)
     ioloop.IOLoop.instance().start()
