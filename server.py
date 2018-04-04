@@ -49,13 +49,13 @@ class rest_handler(web.RequestHandler):
 
 class IndexHandler(web.RequestHandler):
     def get(self):
-        self.render("../example/index.html")
+        self.render(os.getcwd() + "/../example/index.html")
 
 
 app = web.Application([
     (r'/', IndexHandler),
     (r'/api', rest_handler),
-    (r'/(.*)', web.StaticFileHandler, {'path': '../example'})
+    (r'/(.*)', web.StaticFileHandler, {'path': os.getcwd() + '/../example'})
 
 ])
 
