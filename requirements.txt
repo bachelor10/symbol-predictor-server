@@ -1,8 +1,6 @@
-h5py
 Pillow
 PIL
 tensorflow
 numpy
 tornado
-tinydb
 keras
