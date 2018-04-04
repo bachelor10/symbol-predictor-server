@@ -52,7 +52,7 @@ def find_client_with_request_data(data):
 
 clients = dict()
 
-predictor = Predictor(os.getcwd() + '/machine_learning/my_model_1tanh_2.h5')
+predictor = Predictor(os.getcwd() + '/machine_learning/cnn_model.h5')
 
 class WebSocket(websocket.WebSocketHandler):
     def open(self):

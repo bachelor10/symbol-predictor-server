@@ -329,11 +329,11 @@ class Equation:
 
 def continous_symbol_generator(limit=0):
     count = 0
-    for file in os.listdir(os.getcwd() + '/train'):
+    for file in os.listdir(os.getcwd() + '/data'):
         if count > limit: break
         if count%100 == 0: print('Count', count)
         
-        full_filename = os.getcwd() + '/train/' + file
+        full_filename = os.getcwd() + '/data/' + file
         try:
             tree = ET.parse(full_filename)
         except:
@@ -396,16 +396,32 @@ def model_data_generator(limit=10000):
 
         count += 1
 
-        
-
         yield equation.create_image_and_scale()
 
-        # equation.save()
+        #equation.save()
 
     # generate_bitmaps(segments)
 
     # generate_bitmap(segments[0])
 
+def save_image(img, truth):
+
+    directory = os.getcwd()
+    subdir = directory + '\\images_unfiltered\\' + truth
+    
+    if not os.path.exists(subdir + '\\' + truth):
+        os.makedirs(subdir + '\\' + truth)
+
+    filename =subdir + '\\' + truth + '_' + str(uuid.uuid4()) + '.png'
+    print(filename)
+
+    img.save(filename)
+
 if __name__ == '__main__':
-    for val in continous_symbol_generator(limit=10):
-        print(val[1])
+
+    CLASSES = [']', 'z', 'f', 'sqrt', '3', '\\infty', '\\neq', '6', '0', '[', '7', '4', '(', 'x', '\\alpha', '\\lambda', '\\beta', '\\rightarrow', '8', ')', '=', 'y', '\\phi', '1', '<', '\\Delta', '\\gamma', '9', '\\pi', '2', '\\theta', '\\mu', '-', '>', '+', '\\sigma', '5', 'g']
+
+    for val in continous_symbol_generator(10000):
+        #print(val[1])
+        if val[1] in CLASSES:
+            save_image(val[0], val[1])

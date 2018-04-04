@@ -218,9 +218,10 @@ class Expression:
 
     def recursive_search_for_context(self, objects, max_x, min_x, max_y, min_y):
         
-        objects = self.find_roots(objects)               
-        objects = self.find_fractions(objects, max_x, min_x, max_y, min_y)        
+        objects = self.find_roots(objects)
+        objects = self.find_fractions(objects, max_x, min_x, max_y, min_y)
         objects = self.find_equalsigns(objects)
+        objects = self.find_multiplicationsigns(objects)
         objects = self.sort_objects_by_x_value(objects)
         objects = self.find_exponents(objects, max_x, min_x, max_y, min_y)
         objects = self.sort_objects_by_x_value(objects)
@@ -281,8 +282,6 @@ class Expression:
                 objects.append(root_obj)
                 
             else:
-                print('Empty root')
-                
                 root_obj = Root(root.id, [], root.traces)
                 objects.append(root_obj)
 
@@ -310,18 +309,14 @@ class Expression:
 
         # Find fractions and context in numerator/denominator
         for minus_sign in minus_signs:
-
-            print('Found minus sign, checking for fraction')
             # Check if minus sign can be a fraction, check if there are objects over and under
             obj_is_frac, numerator, denominator = self.check_if_fraction(minus_sign, objects, max_y, min_y)
 
             if obj_is_frac:
-                print('Found fraction')
                 objects.remove(minus_sign)
 
                 # Remove fraction objects found from objects
                 for obj in numerator:
-                    print(obj.id)
                     if obj in minus_signs:
                         minus_signs.remove(obj)
 
@@ -378,9 +373,7 @@ class Expression:
         minus_signs = [obj for obj in objects if obj.truth == '-']
 
         for pair in combinations(minus_signs, r=2):
-            print(pair[0].id, pair[1].id)
             if self.check_if_equalsign(pair[0], pair[1]):
-                print('Found equalsign')
                 pair_processed = False
                 
                 # Remove from objects
@@ -403,14 +396,64 @@ class Expression:
                 
         return objects
 
+    
+    def check_if_multiplication(self, object, avg_area):
+             
+        obj_area = object.boundingbox.width * object.boundingbox.height
+
+        if obj_area > 250:
+            return False
+
+        if object.boundingbox.height > 20 or object.boundingbox.width > 20:
+            return False
+
+        if obj_area < 51:
+            return True
+
+        if object.boundingbox.width >= 2 * object.boundingbox.height:
+            return False
+
+        if object.boundingbox.height >= 2 * object.boundingbox.width:
+            return False
+
+        return True
+
+    def find_multiplicationsigns(self, objects):
+        
+        if len(objects) == 0:
+            return objects
+
+        area = 0
+
+        for obj in objects:
+            area += obj.boundingbox.width * obj.boundingbox.height
+
+        avg_area = area / len(objects)
+
+        for i, obj in enumerate(objects):
+            
+            if self.check_if_multiplication(obj, avg_area):
+                objects[i].truth = '\cdot '
+                objects[i].type = 'operator'
+                
+        return objects
 
     def check_if_exponent(self, base, exponent):
-        mid_y_base = base.boundingbox.min_y
-        max_y_exp = exponent.boundingbox.mid_y
+        mid_y_base = base.boundingbox.mid_y
+        max_y_exp = exponent.boundingbox.max_y
+        mid_y_exp = exponent.boundingbox.mid_y
+        base_treshhold = (base.boundingbox.mid_y + base.boundingbox.min_y) / 2
 
         # Check if mid_y values are inside treshhold
         if max_y_exp > mid_y_base:
             return False
+
+        if mid_y_exp > base_treshhold:
+            return False
+
+        if exponent.type == 'operator':
+            if max_y_exp > base_treshhold:
+                return False
 
         return True
 
@@ -479,7 +522,6 @@ class Expression:
     def to_latex(self):
         latex = ''
         for group in self.groups:
-            
             latex += group.to_latex()
             
         return latex
@@ -516,14 +558,17 @@ class Preprocessor:
             distances_index = [[j, i] for i, j in enumerate(distances)]
             sorted_distances_index = np.asarray(sorted(distances_index, reverse=True))
             
-            for i in sorted_distances_index[0:to_add, 1]:
-                index = int(i)
+            try:
+                for i in sorted_distances_index[0:to_add, 1]:
+                    index = int(i)
 
-                new_x = (trace[index][0] + trace[index + 1][0]) / 2
-                new_y = (trace[index][1] + trace[index + 1][1]) / 2
+                    new_x = (trace[index][0] + trace[index + 1][0]) / 2
+                    new_y = (trace[index][1] + trace[index + 1][1]) / 2
 
-                trace = np.insert(trace, index+1, np.array((new_x, new_y)), axis=0)
-        
+                    trace = np.insert(trace, index+1, np.array((new_x, new_y)), axis=0)
+            except IndexError:
+                return trace
+
         return trace
 
     
@@ -579,8 +624,12 @@ class Preprocessor:
 
 class Predictor:
 
-    CLASS_INDICES = {']': 17, 'z': 38, 'int': 23, 'sqrt': 32, '3': 7, '\\infty': 22, '\\neq': 27, '6': 10, '0': 4, '[': 16, '7': 11, '4': 8, '(': 0, 'x': 36, '\\alpha': 18, '\\lambda': 24, '\\beta': 19, '\\rightarrow': 30, '8': 12, ')': 1, '=': 14, 'y': 37, '\\phi': 28, '\\times': 35, '1': 5, '<': 25, '\\Delta': 15, '\\gamma': 20, '9': 13, '\\pi': 29, '2': 6, '\\sum': 33, '\\theta': 34, '\\mu': 26, '-': 3, '>': 21, '+': 2, '\\sigma': 31, '5': 9}
-    CLASS_TYPES = {']': 'structure', 'z': 'var', 'int': 'special', 'sqrt': 'special', '3': 'num', '\\infty': 'num', '\\neq': 'operator', '6': 'num', '0': 'num', '[': 'structure', '7': 'num', '4': 'num', '(': 'structure', 'x': 'var', '\\alpha': 'var', '\\lambda': 'var', '\\beta': 'var', '\\rightarrow': 'operator', '8': 'num', ')': 'structure', '=': 'operator', 'y': 'var', '\\phi': 'var', '\\times': 'operator', '1': 'num', '<': 'operator', '\\Delta': 'var', '\\gamma': 'var', '9': 'num', '\\pi': 'var', '2': 'num', '\\sum': 'special', '\\theta': 'var', '\\mu': 'var', '-': 'operator', '>': 'operator', '+': 'operator', '\\sigma': 'var', '5': 'num'}
+    #CLASS_INDICES = {']': 17, 'z': 38, 'int': 23, 'sqrt': 32, '3': 7, '\\infty': 22, '\\neq': 27, '6': 10, '0': 4, '[': 16, '7': 11, '4': 8, '(': 0, 'x': 36, '\\alpha': 18, '\\lambda': 24, '\\beta': 19, '\\rightarrow': 30, '8': 12, ')': 1, '=': 14, 'y': 37, '\\phi': 28, 'x': 35, '1': 5, '<': 25, '\\Delta': 15, '\\gamma': 20, '9': 13, '\\pi': 29, '2': 6, '\\sum': 33, '\\theta': 34, '\\mu': 26, '-': 3, '>': 21, '+': 2, '\\sigma': 31, '5': 9}
+    #CLASS_TYPES = {']': 'structure', 'z': 'var', 'int': 'special', 'sqrt': 'special', '3': 'num', '\\infty': 'num', '\\neq': 'operator', '6': 'num', '0': 'num', '[': 'structure', '7': 'num', '4': 'num', '(': 'structure', 'x': 'var', '\\alpha': 'var', '\\lambda': 'var', '\\beta': 'var', '\\rightarrow': 'operator', '8': 'num', ')': 'structure', '=': 'operator', 'y': 'var', '\\phi': 'var', 'x': 'var', '1': 'num', '<': 'operator', '\\Delta': 'var', '\\gamma': 'var', '9': 'num', '\\pi': 'var', '2': 'num', '\\sum': 'special', '\\theta': 'var', '\\mu': 'var', '-': 'operator', '>': 'operator', '+': 'operator', '\\sigma': 'var', '5': 'num'}
+
+
+    CLASS_INDICES = {'3': 7, 'y': 36, 'lt': 26, '\\gamma ': 22, '\\beta': 20, ')': 1, '0': 4, '1': 5, 'sqrt': 33, '\\lambda': 25, '7': 11, 'z': 37, '6': 10, '\\Delta': 15, '-': 3, '\\neq': 28, '=': 14, '8': 12, 'G': 16, '\\sigma': 32, 'f': 21, '\\rightarrow': 31, '\\phi': 29, '\\infty': 24, 'x': 35, '[': 17, '9': 13, 'gt': 23, '\\theta': 34, '\\pi': 30, '4': 8, '5': 9, '2': 6, '\\mu': 27, '(': 0, ']': 18, '\\alpha': 19, '+': 2}
+    CLASS_TYPES = {'3': 'num', 'y': 'var', 'lt': 'operator', '\\gamma ': 'var', '\\beta': 'var', ')': 'structure', '0': 'num', '1': 'num', 'sqrt': 'special', '\\lambda': 'var', '7': 'num', 'z': 'var', '6': 'num', '\\Delta': 'var', '-': 'operator', '\\neq': 'operator', '=': 'operator', '8': 'num', 'G': 'var', '\\sigma': 'var', 'f': 'var', '\\rightarrow': 'operator', '\\phi': 'var', '\\infty': 'num', 'x': 'var', '[': 'structure', '9': 'num', 'gt': 'operator', '\\theta': 'var', '\\pi': 'var', '4': 'num', '5': 'num', '2': 'num', '\\mu': 'var', '(': 'structure', ']': 'structure', '\\alpha': 'var', '+': 'operator'}
 
     def __init__(self, model_path):
         self.model = keras.models.load_model(model_path)
@@ -595,6 +644,7 @@ class Predictor:
         labels = []
         values = []
         truth = ''
+        type_truth = ''
 
         for i, index in enumerate(bestProbabilites):
             for key, value in Predictor.CLASS_INDICES.items():
@@ -605,6 +655,8 @@ class Predictor:
                     
                     labels.append(key)
                     values.append(float(truth_proba[0][index]))
+        
+        
 
         return truth, {
             'labels': labels,

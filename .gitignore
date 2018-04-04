@@ -105,6 +105,13 @@ ENV/
 
 /machine_learning/data/
 /machine_learning/images
+/machine_learning/origin_jpg
+/machine_learning/images_unfiltered
+/machine_learning/unfiltered_training_data
+/machine_learning/unfiltered_validation_data
+/machine_learning/training_data
+/machine_learning/validation_data
+/machine_learning/origin_jpg
 /machine_learning/validation/
 /machine_learning/train/
 /machine_learning/preview/

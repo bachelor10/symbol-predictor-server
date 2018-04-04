@@ -22,7 +22,7 @@ def generate_dataset():
     print("Getting train data")
 
     train_generator = train_generator.flow_from_directory(
-        'train2',
+        'training_data',
         target_size=(26,26),
         batch_size=64,
         color_mode='grayscale',
@@ -51,7 +51,7 @@ def generate_dataset():
     """
 
     validation_generator = validation_generator.flow_from_directory(
-        'validation2',
+        'validation_data',
         target_size=(26, 26),
         batch_size=64,
         color_mode='grayscale',
@@ -59,7 +59,7 @@ def generate_dataset():
 
     print("Validation classes", validation_generator.classes)
     print("Validation class_indices", validation_generator.class_indices)
-    print("Classes", os.listdir(os.getcwd() + '/train2'))
+    print("Classes", os.listdir(os.getcwd() + '/training_data'))
     return train_generator, validation_generator
 
 
@@ -79,6 +79,9 @@ model.add(Dense(128, activation='relu'))
 model.add(Dropout(0.3))
 model.add(Dense(13, activation='softmax'))
 """
+
+'''
+# Den som funket
 model = Sequential()
 model.add(Conv2D(32, (3, 3), input_shape=(26,26,1), activation='relu'))
 model.add(Conv2D(32, (3, 3), activation='relu'))
@@ -88,10 +91,28 @@ model.add(Dropout(0.25))
 model.add(Flatten())
 
 # Fully connected layer
-model.add(Dense(512, activation='sigmoid'))
+model.add(Dense(512, activation='relu'))
 model.add(Dropout(0.5))
 model.add(Dense(39))
 model.add(Activation('softmax'))
+'''
+
+model = Sequential()
+
+model.add(Conv2D(32, (3, 3), input_shape=(26,26,1), activation='relu'))
+model.add(Conv2D(32, (3, 3), activation='relu'))
+model.add(MaxPooling2D(pool_size=(2,2)))
+
+model.add(Dropout(0.25))
+
+model.add(Flatten())
+
+# Fully connected layer
+model.add(Dense(512, activation='tanh'))
+model.add(Dropout(0.5))
+model.add(Dense(38))
+model.add(Activation('softmax'))
+
 
 print("Compiling model")
 
@@ -102,12 +123,12 @@ print("Fitting model")
 
 model.fit_generator(
         train_generator,
-        epochs=10,
+        epochs=25,
         validation_data=validation_generator
 )
 
 print("Done!")
-model.save('my_model.h5')
+model.save('cnn_model.h5')
 
 #from keras.utils import plot_model
 
