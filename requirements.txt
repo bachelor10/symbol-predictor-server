@@ -4,3 +4,4 @@ tensorflow
 numpy
 tornado
 keras
+simplejson
