@@ -70,7 +70,8 @@ $(document).ready(function () {
 
     var eraseButton = $("#erase")
 
-    var canvas = new SymbolCanvas($('#canvas')["0"]);
+    var canvasElement = $('#canvas')
+    var canvas = new SymbolCanvas(canvasElement["0"]);
 
     var canvasController = new CanvasController(canvas);
 
@@ -78,7 +79,8 @@ $(document).ready(function () {
     var currentBuffer;
 
     eraseButton.click(function(e) {
-        canvas.options.isErasing = !Boolean(canvas.options.isErasing)
+        canvasController.options.isErasing = !Boolean(canvasController.options.isErasing)
+        eraseButton.toggleClass('selected-erase')
     })
 
     canvasController.on('release', function (buffer){
@@ -98,12 +100,18 @@ $(document).ready(function () {
 
     canvasController.on('symbolclick', function(clickedIndex) {
 
+        console.log("SymbolClick")
+
         const matchingSymbol = currentPrediction.probabilites.find(proba => {
             return proba.tracegroup.indexOf(clickedIndex) >= 0
         });
 
         if(matchingSymbol){
+            console.log("SymbolClick match", matchingSymbol)
+
             currentBuffer.forEach((trace, i) => {
+                console.log("Drawing", i)
+
                 if(matchingSymbol.tracegroup.indexOf(i) >= 0){
                     canvasController.markTraceGroups([i], 'red')
                 }
