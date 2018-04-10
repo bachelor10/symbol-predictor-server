@@ -628,8 +628,8 @@ class Predictor:
     #CLASS_TYPES = {']': 'structure', 'z': 'var', 'int': 'special', 'sqrt': 'special', '3': 'num', '\\infty': 'num', '\\neq': 'operator', '6': 'num', '0': 'num', '[': 'structure', '7': 'num', '4': 'num', '(': 'structure', 'x': 'var', '\\alpha': 'var', '\\lambda': 'var', '\\beta': 'var', '\\rightarrow': 'operator', '8': 'num', ')': 'structure', '=': 'operator', 'y': 'var', '\\phi': 'var', 'x': 'var', '1': 'num', '<': 'operator', '\\Delta': 'var', '\\gamma': 'var', '9': 'num', '\\pi': 'var', '2': 'num', '\\sum': 'special', '\\theta': 'var', '\\mu': 'var', '-': 'operator', '>': 'operator', '+': 'operator', '\\sigma': 'var', '5': 'num'}
 
 
-    CLASS_INDICES = {'3': 7, 'y': 36, 'lt': 26, '\\gamma ': 22, '\\beta': 20, ')': 1, '0': 4, '1': 5, 'sqrt': 33, '\\lambda': 25, '7': 11, 'z': 37, '6': 10, '\\Delta': 15, '-': 3, '\\neq': 28, '=': 14, '8': 12, 'G': 16, '\\sigma': 32, 'f': 21, '\\rightarrow': 31, '\\phi': 29, '\\infty': 24, 'x': 35, '[': 17, '9': 13, 'gt': 23, '\\theta': 34, '\\pi': 30, '4': 8, '5': 9, '2': 6, '\\mu': 27, '(': 0, ']': 18, '\\alpha': 19, '+': 2}
-    CLASS_TYPES = {'3': 'num', 'y': 'var', 'lt': 'operator', '\\gamma ': 'var', '\\beta': 'var', ')': 'structure', '0': 'num', '1': 'num', 'sqrt': 'special', '\\lambda': 'var', '7': 'num', 'z': 'var', '6': 'num', '\\Delta': 'var', '-': 'operator', '\\neq': 'operator', '=': 'operator', '8': 'num', 'G': 'var', '\\sigma': 'var', 'f': 'var', '\\rightarrow': 'operator', '\\phi': 'var', '\\infty': 'num', 'x': 'var', '[': 'structure', '9': 'num', 'gt': 'operator', '\\theta': 'var', '\\pi': 'var', '4': 'num', '5': 'num', '2': 'num', '\\mu': 'var', '(': 'structure', ']': 'structure', '\\alpha': 'var', '+': 'operator'}
+    CLASS_INDICES = {'3': 7, 'y': 36, '<': 26, '\\gamma ': 22, '\\beta ': 20, ')': 1, '0': 4, '1': 5, 'sqrt': 33, '\\lambda ': 25, '7': 11, 'z': 37, '6': 10, '\\Delta ': 15, '-': 3, '\\neq ': 28, '=': 14, '8': 12, 'G': 16, '\\sigma ': 32, 'f': 21, '\\rightarrow ': 31, '\\phi ': 29, '\\infty ': 24, 'x': 35, '[': 17, '9': 13, '>': 23, '\\theta ': 34, '\\pi ': 30, '4': 8, '5': 9, '2': 6, '\\mu ': 27, '(': 0, ']': 18, '\\alpha ': 19, '+': 2}
+    CLASS_TYPES = {'3': 'num', 'y': 'var', '<': 'operator', '\\gamma ': 'var', '\\beta ': 'var', ')': 'structure', '0': 'num', '1': 'num', 'sqrt': 'special', '\\lambda ': 'var', '7': 'num', 'z': 'var', '6': 'num', '\\Delta ': 'var', '-': 'operator', '\\neq ': 'operator', '=': 'operator', '8': 'num', 'G': 'var', '\\sigma ': 'var', 'f': 'var', '\\rightarrow ': 'operator', '\\phi ': 'var', '\\infty ': 'num', 'x': 'var', '[': 'structure', '9': 'num', '>': 'operator', '\\theta ': 'var', '\\pi ': 'var', '4': 'num', '5': 'num', '2': 'num', '\\mu ': 'var', '(': 'structure', ']': 'structure', '\\alpha ': 'var', '+': 'operator'}
 
     def __init__(self, model_path):
         self.model = keras.models.load_model(model_path)
@@ -639,7 +639,7 @@ class Predictor:
         input_image = self.create_image(segment_traces)
         truth_proba = self.model.predict_proba(input_image)
 
-        bestProbabilites = np.argsort(truth_proba[0])[::-1][:6]
+        bestProbabilites = np.argsort(truth_proba[0])[::-1][:10]
 
         labels = []
         values = []

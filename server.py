@@ -23,8 +23,9 @@ class rest_handler(web.RequestHandler):
         for i, trace in enumerate(buffer):
             buffer_array.append([])
 
-            for coords in trace:
-                buffer_array[i].append([int(coords['x']), int(coords['y'])])
+            if trace:
+                for coords in trace:
+                    buffer_array[i].append([int(coords['x']), int(coords['y'])])
 
 
         buffer_correct = [i for i in buffer_array if i != []]

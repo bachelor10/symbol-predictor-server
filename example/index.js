@@ -23,8 +23,10 @@ function fetchPrediction(buffer, callback) {
 
 
 var chartOptions = {
-    type: 'bar',
+    type: 'horizontalBar',
     responsive: false,
+    maintainAspectRatio: false,
+    title: {text: "Sannsynligheter", display: true},
     data: {
         labels: [],
         datasets: [
@@ -45,24 +47,49 @@ var chartOptions = {
     },
     scales: {
         xAxes: [{
-            barThickness : 10
+            gridLines: {
+                offsetGridLines: true
+            }
         }]
     }
+
+    
 };
 
-var myNewChart = new Chart($('#chart'), chartOptions)
+var probabilityGraph = new Chart($('#chart'), chartOptions)
 
 function displayGraphs(probabilites){
-    //Number of graphs to display
 
-    chartOptions.data.labels = probabilites.labels
-    chartOptions.data.datasets[0].data = probabilites.values
+    //Add an extra element to enforce label width on graph
 
-    myNewChart.update()
+    chartOptions.data.labels = [...probabilites.labels, ".                ."]
+    chartOptions.data.datasets[0].data = [...probabilites.values, 0]
+
+    probabilityGraph.update()
 }
 
+/** 
+ * Resets canvas size dynamically. Canvas needs fixed sizes.
+*/
+function setCanvasSize(){
+    var containerElement = $('.content-container')
+    var canvasElement = $('#canvas')
+
+    
+    canvasElement[0].width = containerElement.width()
+    canvasElement[0].height = 600
+
+    //To include color on full page
+    var body = $(".page-container").css('min-height', window.innerHeight + 'px')
+
+}
 
 $(document).ready(function () {
+
+    //Canvas needs a fixed height and width, therefore set dynamic through js.
+    $(window).on('resize', setCanvasSize)
+    setCanvasSize()
+
 
     var equation = $("#latex");
 
@@ -71,19 +98,23 @@ $(document).ready(function () {
     var eraseButton = $("#erase")
 
     var canvasElement = $('#canvas')
-    var canvas = new SymbolCanvas(canvasElement["0"]);
+
+    var canvas = new SymbolCanvas(canvasElement[0]);
 
     var canvasController = new CanvasController(canvas);
 
     var currentPrediction;
     var currentBuffer;
 
+    //Handle erasing
     eraseButton.click(function(e) {
         canvasController.options.isErasing = !Boolean(canvasController.options.isErasing)
         eraseButton.toggleClass('selected-erase')
     })
 
+    // Fetch from API when canvascontroller returns a buffer. (User is done typing)
     canvasController.on('release', function (buffer){
+        console.log("Released", buffer)
         currentBuffer = buffer;
         fetchPrediction(buffer, function(err, result){
             if(err){
@@ -95,22 +126,25 @@ $(document).ready(function () {
             
             currentPrediction = result;
 
+            //Display the last drawing in graph
+            displayGraphs(currentPrediction.probabilites[currentPrediction.probabilites.length - 1])
+
+
         })
     })
 
+    //Mark symbol red when canvascontroller registers a symbolclick
     canvasController.on('symbolclick', function(clickedIndex) {
 
-        console.log("SymbolClick")
-
+        //Find the corresponding symbol returned from server. (Server includes which traces were included to group in tracegroup)
         const matchingSymbol = currentPrediction.probabilites.find(proba => {
             return proba.tracegroup.indexOf(clickedIndex) >= 0
         });
 
         if(matchingSymbol){
-            console.log("SymbolClick match", matchingSymbol)
 
+            //Redraw all traces to remove possible previous red drawings
             currentBuffer.forEach((trace, i) => {
-                console.log("Drawing", i)
 
                 if(matchingSymbol.tracegroup.indexOf(i) >= 0){
                     canvasController.markTraceGroups([i], 'red')
@@ -121,8 +155,6 @@ $(document).ready(function () {
             })
             displayGraphs(matchingSymbol)
         }
-
-
 
     })
 

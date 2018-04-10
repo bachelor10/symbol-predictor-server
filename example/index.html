@@ -24,17 +24,21 @@
     <div class="page-container">
         <div class="content-container">
             <div class="header">
-                <p class="sidebar-head">Skriv et matematisk uttrykk ...</p>
+                <div class="text-container">
+                    <span class="sidebar-head">Tegn i feltet under</span>
+                    <i class="material-icons" style="font-size:24px; color:black;">arrow_downward</i>        
+                </div>
                 <i id="erase" class="material-icons selected-erase icon-button" style="font-size:32px;">delete</i>
             </div>
-            <canvas id="canvas" height="450" width="942"></canvas>
-            <div class="footer-container">
-                <div id="latex"></div>
-                <p id="latexRaw"></p>
-            </div>
+            <canvas id="canvas"></canvas>
+
         </div>
         <div id="graphContainer">
-            <canvas id="chart"></canvas>
+                <div class="footer-container">
+                        <div id="latex"></div>
+                        <p id="latexRaw"></p>
+                    </div>
+            <canvas height="450" id="chart"></canvas>
         </div>
     </div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/EventEmitter/5.2.4/EventEmitter.min.js"></script>
