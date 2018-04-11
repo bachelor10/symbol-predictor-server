@@ -292,10 +292,19 @@ class Expression:
 
         max_x = minus_sign.boundingbox.max_x
         min_x = minus_sign.boundingbox.min_x
+        
+        minus_signs = [obj for obj in objects if obj.truth == '-']
 
         numerator = self.find_objects_in_area(max_x, min_x, minus_sign.boundingbox.mid_y - 1, min_y, objects)
         denominator = self.find_objects_in_area(max_x, min_x, max_y, minus_sign.boundingbox.mid_y + 1, objects)
 
+        if len(numerator) > 1 or len(denominator) > 1:
+            return True, numerator, denominator
+        
+        if len(numerator) > 0 or len(denominator) > 0:
+            if len(minus_signs) == 1:
+                return True, numerator, denominator
+        
         if len(numerator) > 0 and len(denominator) > 0:
             return True, numerator, denominator
         else:
@@ -377,12 +386,8 @@ class Expression:
                 pair_processed = False
                 
                 # Remove from objects
-                if pair[0] in objects:
+                if pair[0] in objects and pair[1] in objects:
                     objects.remove(pair[0])
-                else:
-                    pair_processed = True
-                
-                if pair[1] in objects:
                     objects.remove(pair[1])
                 else:
                     pair_processed = True
