@@ -5,7 +5,7 @@ import simplejson as json
 from time import time
 
 
-predictor = Predictor(os.getcwd() + '/machine_learning/cnn_model.h5')
+predictor = Predictor(os.getcwd() + '/machine_learning/combined_model.h5')
 
 
 class rest_handler(web.RequestHandler):
@@ -18,6 +18,13 @@ class rest_handler(web.RequestHandler):
         body = json.loads(self.request.body)
 
         buffer = body['buffer']
+
+        truth = None;
+
+        try:
+            truth = body['truth']
+        except:
+            pass
         buffer_array = []
 
         for i, trace in enumerate(buffer):
@@ -32,7 +39,7 @@ class rest_handler(web.RequestHandler):
 
         expression = Expression(predictor)
 
-        probabilities = expression.feed_traces(buffer_correct)
+        probabilities = expression.feed_traces(buffer_correct, truth)
 
         latex = expression.to_latex()
 

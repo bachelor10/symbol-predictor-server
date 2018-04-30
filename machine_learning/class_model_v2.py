@@ -2,6 +2,12 @@ import math, keras
 from itertools import cycle, combinations
 import numpy as np
 from PIL import Image, ImageDraw
+from keras.preprocessing import sequence
+from rdp import rdp
+import matplotlib.pyplot as plt
+from rpd_test import rdp_fixed_num
+
+plt.style.use('ggplot')
 
 class Boundingbox:
     def __init__(self, traces):
@@ -193,7 +199,7 @@ class Expression:
         self.predictor = predictor
         self.preprocessor = Preprocessor()
 
-    def feed_traces(self, traces):
+    def feed_traces(self, traces, truth):
         overlap_pairs = self.preprocessor.find_overlap_pairs(traces)
         tracegroups = self.preprocessor.create_tracegroups(traces, overlap_pairs)
         
@@ -203,7 +209,7 @@ class Expression:
             segment_traces = [traces[j] for j in list(group)]
             id = str(i)
 
-            predicted_truth, proba, predicted_type = self.predictor.predict(segment_traces)
+            predicted_truth, proba, predicted_type = self.predictor.predict(segment_traces, truth)
 
             proba['tracegroup'] = group
             probabilities.append(proba)
@@ -622,6 +628,7 @@ class Preprocessor:
         return sorted_tracegroups
 
 
+
 class Predictor:
 
     #CLASS_INDICES = {']': 17, 'z': 38, 'int': 23, 'sqrt': 32, '3': 7, '\\infty': 22, '\\neq': 27, '6': 10, '0': 4, '[': 16, '7': 11, '4': 8, '(': 0, 'x': 36, '\\alpha': 18, '\\lambda': 24, '\\beta': 19, '\\rightarrow': 30, '8': 12, ')': 1, '=': 14, 'y': 37, '\\phi': 28, 'x': 35, '1': 5, '<': 25, '\\Delta': 15, '\\gamma': 20, '9': 13, '\\pi': 29, '2': 6, '\\sum': 33, '\\theta': 34, '\\mu': 26, '-': 3, '>': 21, '+': 2, '\\sigma': 31, '5': 9}
@@ -633,12 +640,53 @@ class Predictor:
 
     def __init__(self, model_path):
         self.model = keras.models.load_model(model_path)
+        #self.trainY = []
+        #self.trainX_img = []
+        #self.trainX_trace = []
+
+        #try:
+        #    self.trainY = np.load('./data/trainY').to_list()
+        #    self.trainX_img = np.load('./data/trainX_img').to_list()
+        #    self.trainY_trace = np.load('./data/trainY_trace').to_list()
+        #except:
+        #    pass
+
+    def vizualize(self, image, sequence):
+        f, (ax1, ax2) = plt.subplots(1, 2)
+        ax1.imshow(np.array(image).reshape(26, 26))
+        ax2.plot(sequence[0][:, 0], sequence[0][:, 1], '-o')
+        ax2.set_xlim([-1, 1])
+        ax2.set_ylim([1, -1])
 
 
-    def predict(self, segment_traces):
+        plt.show()
+
+    def store_train_data(self, image, sequence, truth):
+
+        trainY = np.zeros(len(Predictor.CLASS_INDICES.keys()))
+        print("TRUTH", truth)
+        try:
+            trainY[Predictor.CLASS_INDICES[truth]] = 1.0
+        except KeyError as e:
+            print("Error", e)
+            return
+        
+        self.trainY.append(trainY)
+        self.trainX_img.append(image)
+        self.trainX_trace.append(sequence)
+
+        np.save('./data/trainY', np.array(self.trainY))
+        np.save('./data/trainX_img', np.array(self.trainX_img))
+        np.save('./data/trainX_trace', np.array(self.trainX_trace))
+
+
+    def predict(self, segment_traces, truth):
         input_image = self.create_image(segment_traces)
-        truth_proba = self.model.predict_proba(input_image)
-
+        sequence = self.create_sequence(segment_traces)
+        
+        #self.store_train_data(input_image, sequence, truth)
+        #self.vizualize(input_image, sequence)
+        truth_proba = self.model.predict([sequence, input_image])
         bestProbabilites = np.argsort(truth_proba[0])[::-1][:10]
 
         labels = []
@@ -678,8 +726,9 @@ class Predictor:
         resolution = 26
         image_resolution = 26
 
-        image = Image.new('L', (image_resolution, image_resolution), "white")
+        image = Image.new('L', (image_resolution, image_resolution), "black")
         draw = ImageDraw.Draw(image)
+
 
         max_x = 0
         min_x = math.inf
@@ -741,11 +790,102 @@ class Predictor:
 
             for x_coord, y_coord in coordinates[:-1]:
                 next_coord = next(xy_cycle)
-                draw.line([x_coord, y_coord, next_coord[0], next_coord[1]], fill="black", width=1)
+                draw.line([x_coord, y_coord, next_coord[0], next_coord[1]], fill="white", width=1)
 
         #return np.asarray([np.asarray(image).reshape((26, 26, 1))])
-        return np.array(image).reshape(1, 26, 26, 1)
+        return np.array(image).reshape(1, 26, 26, 1)/255
 
+    def scale_traces(self, trace, resolution=1):
+
+        trace = np.array(trace)
+
+        traceX = trace[:, 0]
+        traceY = trace[:, 1]
+
+        max_x = np.max(traceX)
+        min_x = np.min(traceX)
+        max_y = np.max(traceY)
+        min_y = np.min(traceY)
+
+        width = max_x - min_x
+        height = max_y - min_y
+        scale = width / height
+
+        width_scale = 0
+        height_scale = 0
+
+        if scale > 1:
+            # width > height
+            height_scale = resolution / scale
+        else:
+            # width < height
+            width_scale = resolution * scale
+
+        side = (resolution - width_scale) / 2
+
+        if width_scale > 0:
+            # add padding in x-direction
+
+            trace[:,1] = self.scale_linear_bycolumn(trace[:,1], high=resolution, low=-resolution, ma=max_y, mi=min_y)
+            side = (resolution - width_scale) / 2
+            trace[:,0] = self.scale_linear_bycolumn(trace[:,0], high=(resolution - side), low=(-resolution + side), ma=max_x, mi=min_x)
+        else:
+
+            # add padding in y-direction
+            trace[:,0] = self.scale_linear_bycolumn(trace[:,0], high=resolution, low=-resolution, ma=max_x,
+                                            mi=min_x) 
+            side = (resolution - height_scale) / 2
+            trace[:,1] = self.scale_linear_bycolumn(trace[:,1], high=(resolution - side), low=(-resolution +side), ma=max_y,
+                                            mi=min_y) 
+
+        return trace
+
+    def combine_segment(self, traces):
+        combined_segment = []
+
+        max_len = -math.inf
+        for trace in traces:
+            if(len(trace) > max_len):
+                max_len = len(trace) 
+
+        for trace in traces:
+            for i, coords in enumerate(trace):
+                if i == len(trace) - 1:
+                    combined_segment.append([coords[0], coords[1], 1])
+                else:
+                    combined_segment.append([coords[0], coords[1], 0])
+
+        return np.array(combined_segment)
+
+    def run_rdp_on_traces(self, traces):
+        traces_after_rdp = []
+
+        for trace in traces:
+            #print("Len before", len(trace))
+            rdp_ed = rdp_fixed_num(np.array(trace), 40)
+            #print("Len after", len(rdp_ed))
+            traces_after_rdp.append(rdp_ed)
+            #traces_after_rdp.append(rdp_fixed_num(trace, ))
+
+        return traces_after_rdp
+
+
+    def to_distance_between(self, traces):
+        traces[1:, 0:0] = traces[1:, 0:1] - traces[0:-1, 0:1]
+        traces = traces[1:, :]
+        traces[:, 1] = traces[:,2]
+        traces = traces[:, 0:2]
+        return traces
+
+    def create_sequence(self, traces): 
+        processed = self.run_rdp_on_traces(traces)
+        
+        processed = self.combine_segment(processed)
+
+        processed = self.scale_traces(np.array(processed, dtype="float32"))
+
+
+        return sequence.pad_sequences([processed], dtype='float32', maxlen=40)
 
 def main():
     s1 = Segment(0, '1')

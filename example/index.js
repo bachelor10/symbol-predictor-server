@@ -84,6 +84,7 @@ function setCanvasSize(){
 
 }
 
+
 $(document).ready(function () {
 
     //Canvas needs a fixed height and width, therefore set dynamic through js.
@@ -112,15 +113,14 @@ $(document).ready(function () {
         eraseButton.toggleClass('selected-erase')
     })
 
-    // Fetch from API when canvascontroller returns a buffer. (User is done typing)
+    // Fetch from Ag("Released", buffer)PI when canvascontroller returns a buffer. (User is done typing)
     canvasController.on('release', function (buffer){
-        console.log("Released", buffer)
         currentBuffer = buffer;
         fetchPrediction(buffer, function(err, result){
             if(err){
                 return alert(err)
             }
-
+            
             katex.render(result.latex, equation[0]);
             equationRaw.text(result.latex);
             
@@ -128,9 +128,8 @@ $(document).ready(function () {
 
             //Display the last drawing in graph
             displayGraphs(currentPrediction.probabilites[currentPrediction.probabilites.length - 1])
-
-
         })
+
     })
 
     //Mark symbol red when canvascontroller registers a symbolclick
