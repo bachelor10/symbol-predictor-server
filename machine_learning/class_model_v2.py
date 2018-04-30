@@ -3,10 +3,8 @@ from itertools import cycle, combinations
 import numpy as np
 from PIL import Image, ImageDraw
 from keras.preprocessing import sequence
-import matplotlib.pyplot as plt
 from rpd_test import rdp_fixed_num
 
-plt.style.use('ggplot')
 
 class Boundingbox:
     def __init__(self, traces):
@@ -655,7 +653,7 @@ class Predictor:
         #except:
         #    pass
 
-    def vizualize(self, image, sequence):
+    """def vizualize(self, image, sequence):
         f, (ax1, ax2) = plt.subplots(1, 2)
         ax1.imshow(np.array(image).reshape(26, 26))
         ax2.plot(sequence[0][:, 0], sequence[0][:, 1], '-o')
@@ -664,6 +662,7 @@ class Predictor:
 
 
         plt.show()
+    
 
     def store_train_data(self, image, sequence, truth):
 
@@ -683,7 +682,7 @@ class Predictor:
         np.save('./data/trainX_img', np.array(self.trainX_img))
         np.save('./data/trainX_trace', np.array(self.trainX_trace))
 
-
+    """
     def predict(self, segment_traces, truth):
         input_image = self.create_image(segment_traces)
         sequence = self.create_sequence(segment_traces)
