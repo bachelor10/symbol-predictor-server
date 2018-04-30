@@ -3,7 +3,6 @@ from itertools import cycle, combinations
 import numpy as np
 from PIL import Image, ImageDraw
 from keras.preprocessing import sequence
-from rdp import rdp
 import matplotlib.pyplot as plt
 from rpd_test import rdp_fixed_num
 
