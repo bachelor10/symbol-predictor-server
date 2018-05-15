@@ -14,7 +14,7 @@ The request's body should be on the format:
 ```js
 interface Coordinates2D = {x: number, y: number}
 
-interface Buffer = Array<Trace>
+interface Trace = Array<Coordinates2D>
 
 {
     "buffer": "Array<Trace>"
