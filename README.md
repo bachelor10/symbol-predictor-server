@@ -70,9 +70,18 @@ response = {
     "body": {
         "latex": "\sqrt{3}",
         "probabilities": {
-            "tracegroup": [[0], [1]],
-            "labels": [["\sqrt", "\alpha", "y", ...], ["3", "9", "\beta", ...]],
-            "values": [[0.7, 0.2, 0.05, ...], [0.9, 0.03, 0.01, ...]]
+            "tracegroup": [
+                [0], 
+                [1]
+            ],
+            "labels": [
+                ["\sqrt", "\alpha", "y", ...], 
+                ["3", "9", "\beta", ...]
+            ],
+            "values": [
+                [0.7, 0.2, 0.05, ...], 
+                [0.9, 0.03, 0.01, ...]
+            ]
         }
     }
 }
