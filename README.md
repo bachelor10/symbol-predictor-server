@@ -12,9 +12,9 @@ The endpoint expects data on the format application/JSON.
 
 The request's body should be on the format:
 ```js
-type Coordinates2D = {x: number, y: number}
+Coordinates2D = {x: number, y: number}
 
-type Trace = Array<Coordinates2D>
+Trace = Array<Coordinates2D>
 
 {
     "buffer": "Array<Trace>"
@@ -29,13 +29,13 @@ The output from the endpoint includes:
 
 The response body will be on the format:
 ```js
-type TraceGroup = Array<number> // List of indexes which combined creates a symbol (indexes from the "buffer" in input). 
+TraceGroup = Array<number> // List of indexes which combined creates a symbol (indexes from the "buffer" in input). 
 
-type Probability = number // Number between 0 and 1.
-type Probabilities = Array<Probability> // List of top 10 propabilities.
+Probability = number // Number between 0 and 1.
+Probabilities = Array<Probability> // List of top 10 propabilities.
 
-type Label = string // A latex representation of a single symbol.
-type Labels = Array<Label> // List of top 10 labels (corresponds with Probabilities).
+Label = string // A latex representation of a single symbol.
+Labels = Array<Label> // List of top 10 labels (corresponds with Probabilities).
 
 {
     "latex": string, // The full expression in latex
