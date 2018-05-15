@@ -46,3 +46,33 @@ Labels = Array<Label> // List of top 10 labels (corresponds with Probabilities).
     }
 }
 ```
+
+### Example
+```js
+requests = {
+    "url": "/api",
+    "method": "POST",
+    "body": {
+        buffer: [
+            [
+                {x: 0, y: 1},
+                {x: 1, y: 2}
+            ],
+            [
+                {x: 4, y: 8},
+                {x: 5, y: 9}
+            ]
+        ]
+    }
+}
+
+response = {
+    "body": {
+        "latex": "\sqrt{3}",
+        "probabilities": {
+            "tracegroup": [[0], [1]],
+            "labels": [["\sqrt", "\alpha", "y", ...], ["3", "9", "\beta", ...]],
+            "values": [[0.7, 0.2, 0.05, ...], [0.9, 0.03, 0.01, ...]]
+        }
+    }
+}
