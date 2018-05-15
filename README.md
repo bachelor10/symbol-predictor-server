@@ -14,12 +14,10 @@ The request's body should be on the format:
 ```js
 interface Coordinates2D = {x: number, y: number}
 
-interface Trace = Array<Coordinates2D>
-
 interface Buffer = Array<Trace>
 
 {
-    "buffer": "Array<Array<{x: number, y: number}>>"
+    "buffer": "Array<Trace>"
 }
 ```
 ### Output
@@ -38,6 +36,7 @@ interface Probabilities = Array<Probability> // List of top 10 propabilities.
 
 interface Label = string // A latex representation of a single symbol.
 interface Labels = Array<Label> // List of top 10 labels (corresponds with Probabilities).
+
 {
     "latex": string, // The full expression in latex
     "probabilities": {
