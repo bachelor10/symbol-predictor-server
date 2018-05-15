@@ -49,7 +49,7 @@ Labels = Array<Label> // List of top 10 labels (corresponds with Probabilities).
 
 ### Example
 ```js
-requests = {
+request = {
     "url": "/api",
     "method": "POST",
     "body": {
