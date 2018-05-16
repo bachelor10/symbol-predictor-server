@@ -4,8 +4,6 @@ import math
 
 #https://github.com/fhirschmann/rdp/blob/master/rdp/__init__.py
 
-
-
 """
     pldist is a function directly copied from link above, to calculate the perpendicular distance.
 """
@@ -51,8 +49,3 @@ def rdp_fixed_num(M, fixed_num, dist=pldist):
         return M[indices]
     else:
         return rdp_fixed_num(M[indices], fixed_num)
-
-    
-
-    
-

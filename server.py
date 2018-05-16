@@ -1,18 +1,18 @@
 from tornado import web, ioloop
-from machine_learning.class_model_v2 import Expression, Predictor
+from classification.expression import Expression
+from classification.predictor import Predictor
 import os
 import simplejson as json
 from time import time
 
-
-predictor = Predictor(os.getcwd() + '/machine_learning/combined_model.h5')
-
+predictor = Predictor(os.getcwd() + '/classification/combined_model.h5')
 
 class rest_handler(web.RequestHandler):
 
     def set_default_headers(self):
         self.set_header("Access-Control-Allow-Origin", "*")
         self.set_header('Access-Control-Allow-Methods', 'POST, GET, OPTIONS')
+
 
     def post(self):
         body = json.loads(self.request.body)
@@ -64,8 +64,8 @@ app = web.Application([
     (r'/', IndexHandler),
     (r'/api', rest_handler),
     (r'/(.*)', web.StaticFileHandler, {'path': os.getcwd() + '/example'})
-
 ])
+
 
 if __name__ == '__main__':
     port = 8080
