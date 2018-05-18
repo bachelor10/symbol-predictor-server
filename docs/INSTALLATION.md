@@ -25,7 +25,7 @@ The predictor server includes code to run the server independently. It is curren
 
 Running the server in your own enviroment is described in the [predictor server README](https://github.com/bachelor10/symbol-predictor-server/blob/master/README.md)
 
-![Model of an independent predictor server connected the Matstikk client.](./independent_sys_model2.png "Independent server model")
+![Model of an independent predictor server connected the Matstikk client.](https://github.com/bachelor10/symbol-predictor-server/blob/master/docs/independent_server_model2.png, "Independent server model")
 
 
 ## Integrating the server to Matistikk
@@ -38,4 +38,4 @@ An example of interacting with the classification folder can be found in [server
 
 In order to use the classification code in Django, you will have to write a POST handler to extract the relevant buffer from the POST request, and run prediction using the components in the classification folder. This can be replicated from the mentioned [server.py](https://github.com/bachelor10/symbol-predictor-server/blob/master/server.py) file.
 
-![Model of an independent predictor server connected the Matstikk client.](./combined_sys_model.png "Independent server model")
+![Model of an independent predictor server connected the Matstikk client.](https://github.com/bachelor10/symbol-predictor-server/blob/master/docs/combined_sys_model.png, "Independent server model")
