@@ -2,6 +2,14 @@
 
 This a server including a simple API to run prediction on mathematical symbols and expressions.
 
+## Running the server
+
+Do the following steps to run the server:
+
+1. Clone the repository (```git clone ...```)
+2. Install the dependencies (```pip install -r /path/to/requirements.txt```)
+3. Run the server (```python /path/to/server.py```)
+
 ## API
 The server has a single endpoint, a POST handler the on /api endpoint
 
