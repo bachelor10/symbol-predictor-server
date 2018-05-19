@@ -9,6 +9,8 @@ class Preprocessor:
 
 
     def find_single_trace_distances(self, trace):
+        # Finds distances between points in a trace
+
         trace_cycle = cycle(trace)
         next(trace_cycle)
 
@@ -22,13 +24,13 @@ class Preprocessor:
 
     
     def add_points_to_trace(self, trace, goal):
-        
+        # Adds points to a trace until the amount of points = goal
         while len(trace) < goal:
             to_add = goal - len(trace)
 
             if to_add > len(trace):
                 to_add = len(trace) - 1
-
+            
             distances = self.find_single_trace_distances(trace)
             distances_index = [[j, i] for i, j in enumerate(distances)]
             sorted_distances_index = np.asarray(sorted(distances_index, reverse=True))
@@ -48,18 +50,26 @@ class Preprocessor:
 
     
     def find_overlap_pairs(self, traces):
+        # Find the trace pairs that overlap
+
         overlap_pairs = set()
 
         traces_with_added_points = []
 
+        # Add points to all the traces
         for i, trace in enumerate(traces):
             new_trace = self.add_points_to_trace(trace, len(trace)*2)
             traces_with_added_points.append(new_trace)
 
+        # Iterate through all possible pairs of traces
         for i, trace in enumerate(traces[:-1]):
             for j, trace2 in enumerate(traces[i+1:]):
+
+                # Iterate through all possible pairs of points
                 for coord1 in trace:
                     for coord2 in trace2:
+
+                        # Calculate the distance
                         if math.hypot(coord2[0] - coord1[0], coord2[1] - coord1[1]) < 10:
                             overlap_pairs.add((i, i+j+1))
         
@@ -67,8 +77,9 @@ class Preprocessor:
 
     
     def create_tracegroups(self, traces, trace_pairs):
+        # Create group of traces based on pairs that overlap
+
         tracegroups = []
-        
         for i, trace in enumerate(traces):
 
             flag = False

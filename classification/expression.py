@@ -15,29 +15,45 @@ class Expression:
 
 
     def feed_traces(self, traces, truth):
+        """
+        The main input function.
+        """
+
+        # Find the overlapping traces
         overlap_pairs = self.preprocessor.find_overlap_pairs(traces)
+
+        # Create groups of traces, each group represents a symbol
         tracegroups = self.preprocessor.create_tracegroups(traces, overlap_pairs)
         
         probabilities = []
 
+        # Iterate over the symbols
         for i, group in enumerate(tracegroups):
+            # find the correct traces for 
             segment_traces = [traces[j] for j in list(group)]
             id = str(i)
 
+            # Predict the probabilites for the symbol
             predicted_truth, proba, predicted_type = self.predictor.predict(segment_traces, truth)
 
+            # Probabilities to be returned
             proba['tracegroup'] = group
             probabilities.append(proba)
 
+            # Create segment object to use in context search
             segment = Segment(id, predicted_truth, predicted_type, segment_traces)
             self.segments.append(segment)
 
+        # Search for context
         self.groups = self.recursive_search_for_context(self.segments, 10000, 0, 10000, 0)
 
         return probabilities
 
 
     def recursive_search_for_context(self, objects, max_x, min_x, max_y, min_y):
+        """
+        Finds the context for objects within an area.
+        """
         
         objects = self.find_roots(objects)
         objects = self.find_fractions(objects, max_x, min_x, max_y, min_y)
@@ -51,16 +67,19 @@ class Expression:
 
 
     def find_objects_in_area(self, max_x, min_x, max_y, min_y, objects):
-        # Find segments and groups in specified area
-        # Searches for middle values (mid_x, mid_y)
-        # Format:
-        # 
-        # min_x, min_y ---------------
-        # |                          |
-        # |                          |
-        # ----------------max_x, max_y
+        """
+        Find segments and groups in specified area.
+        Searches for middle values (mid_x, mid_y).
 
-        # To return:
+        Format:
+         
+        min_x, min_y ---------------
+        |                          |
+        |                          |
+        ----------------max_x, max_y
+        
+        Returns a list of objects found.
+        """
         objects_found = []
 
         # Find segments in area
@@ -103,6 +122,7 @@ class Expression:
                 objects.append(root_obj)
                 
             else:
+                # Create empty root object if objects was found within the bounds
                 root_obj = Root(root.id, [], root.traces)
                 objects.append(root_obj)
 
@@ -110,22 +130,27 @@ class Expression:
 
 
     def check_if_fraction(self, minus_sign, objects, max_y, min_y):
-
+        
         max_x = minus_sign.boundingbox.max_x
         min_x = minus_sign.boundingbox.min_x
         
+        # Find the minus signs
         minus_signs = [obj for obj in objects if obj.truth == '-']
 
+        # Find numerator and denominator
         numerator = self.find_objects_in_area(max_x, min_x, minus_sign.boundingbox.mid_y - 1, min_y, objects)
         denominator = self.find_objects_in_area(max_x, min_x, max_y, minus_sign.boundingbox.mid_y + 1, objects)
 
+        # Return true if two or more objects is found in either numerator or denominator
         if len(numerator) > 1 or len(denominator) > 1:
             return True, numerator, denominator
         
+        # Return true if one or more objects is found in one of them, and there is only one minus sign
         if len(numerator) > 0 or len(denominator) > 0:
             if len(minus_signs) == 1:
                 return True, numerator, denominator
         
+        Return true 
         if len(numerator) > 0 and len(denominator) > 0:
             return True, numerator, denominator
         else:
@@ -202,6 +227,7 @@ class Expression:
         # Find equalsigns
         minus_signs = [obj for obj in objects if obj.truth == '-']
 
+        # Iterate through each combination of minus sign pair
         for pair in combinations(minus_signs, r=2):
             if self.check_if_equalsign(pair[0], pair[1]):
                 pair_processed = False
@@ -224,18 +250,23 @@ class Expression:
 
     
     def check_if_multiplication(self, object, avg_area):
-             
+        
+        # Find area of the object
         obj_area = object.boundingbox.width * object.boundingbox.height
 
+        # Check if the area is withing the threshold
         if obj_area > 250:
             return False
-
+        
+        # Check if height and width is within the thresholds
         if object.boundingbox.height > 20 or object.boundingbox.width > 20:
             return False
 
+        # Return true if the area is very small
         if obj_area < 51:
             return True
 
+        # Check if the height and widt is similar
         if object.boundingbox.width >= 2 * object.boundingbox.height:
             return False
 
@@ -252,11 +283,13 @@ class Expression:
 
         area = 0
 
+        # Find the average size of objects by area, is currently not used
         for obj in objects:
             area += obj.boundingbox.width * obj.boundingbox.height
 
         avg_area = area / len(objects)
 
+        # Iterate through the object and check if it is a multiplication sign
         for i, obj in enumerate(objects):
             
             if self.check_if_multiplication(obj, avg_area):
@@ -349,6 +382,8 @@ class Expression:
 
     def to_latex(self):
         latex = ''
+
+        # Iterate through all the groups and find the corresponding latex script
         for group in self.groups:
             latex += group.to_latex()
             

@@ -7,9 +7,9 @@ class Boundingbox:
         min_x = math.inf
         max_y = 0
         min_y = math.inf
-
         x_in_max_y = 0
 
+        # Iterate through the traces to find maximum and minimum values
         for trace in traces:
             y = np.array(trace).astype(np.float)
             x, y = y.T
@@ -36,4 +36,6 @@ class Boundingbox:
         self.min_y = min_y
         self.width = max_x - min_x
         self.height = max_y - min_y
+
+        # Special case attribute for square roots
         self.x_in_max_y = x_in_max_y

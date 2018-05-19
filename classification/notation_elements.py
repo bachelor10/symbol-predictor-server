@@ -1,6 +1,8 @@
 from .boundingbox import Boundingbox
 
 class Segment:
+    # Container for a single symbol, contains all the traces
+
     def __init__(self, id, truth, segment_type, traces):
         self.id = id
         self.traces = traces
@@ -13,6 +15,8 @@ class Segment:
 
 
 class Group:
+    # Group contains the common attributes for the notation elements
+
     def __init__(self, id, traces):
         self.id = id
         self.traces = traces
@@ -21,6 +25,7 @@ class Group:
         self.type = 'group'
             
     def to_latex(self):
+        # Returns the whole expression in latex format
 
         latex = ''
 
@@ -63,8 +68,10 @@ class Group:
 
         
 class Fraction(Group):
-    def __init__(self, id, numerator, denominator, frac_traces):
+    # Container for the fractions
 
+    def __init__(self, id, numerator, denominator, frac_traces):
+        
         traces = frac_traces
         for obj in numerator:
             traces += obj.traces
@@ -81,6 +88,8 @@ class Fraction(Group):
 
 
 class Power(Group):
+    # Container for base-exponent groups
+
     def __init__(self, id, base, exponent):
 
         traces = []
@@ -100,6 +109,8 @@ class Power(Group):
 
 
 class Root(Group):
+    # Container for square roots
+
     def __init__(self, id, core, root_traces):
 
         traces = root_traces
