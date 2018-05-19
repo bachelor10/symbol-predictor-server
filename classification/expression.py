@@ -150,7 +150,7 @@ class Expression:
             if len(minus_signs) == 1:
                 return True, numerator, denominator
         
-        Return true 
+        #Return true
         if len(numerator) > 0 and len(denominator) > 0:
             return True, numerator, denominator
         else:
