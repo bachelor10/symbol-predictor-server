@@ -69,21 +69,27 @@ predictern = Predictor(os.getcwd() + '/classification/combined_model.h5')
 
 
 
-
+# This class tests some of the algorithms directly used by our server
 class TestBasicBackend(unittest.TestCase):
     def fetch_json_fromfile(self, filename):
         with open(filename, 'r') as readfile:
             self.data = json.load(readfile)
+        
         buffer = self.data['buffer']
         buffer_array = []
+        
         for i, trace in enumerate(buffer):
             buffer_array.append([])
+        
             if trace:
                 for coords in trace:
                     buffer_array[i].append([int(coords['x']), int(coords['y'])])
+        
         buffer_correct = [i for i in buffer_array if i != []]
+        
         from classification.expression import Expression
         expression = Expression(self.predictor)
+        
         self.expression = expression
         self.probabilities = expression.feed_traces(buffer_correct, None)
 
