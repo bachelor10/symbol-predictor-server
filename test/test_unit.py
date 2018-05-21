@@ -1,8 +1,4 @@
-import os
-import json
-import sys
-import unittest
-import urllib
+import os, json, sys, unittest
 
 import numpy as np
 

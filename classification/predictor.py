@@ -22,7 +22,6 @@ class Predictor:
         # Create input data for the neural network
         input_image = self.create_image(segment_traces)
         sequence = self.create_sequence(segment_traces)        
-        
         # Predict the class with the model
         truth_proba = self.model.predict([sequence, input_image])
         bestProbabilites = np.argsort(truth_proba[0])[::-1][:10]
@@ -53,8 +52,12 @@ class Predictor:
         # Scales a input list of numerical values to a given interval
         mins = mi
         maxs = ma
+    
         rng = maxs - mins
 
+        if maxs == mins:
+            rawpoints.fill((high + low) / 2)
+            return rawpoints
         output = high - (((high - low) * (maxs - rawpoints)) / rng)
 
         return output

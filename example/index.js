@@ -15,7 +15,7 @@ function fetchPrediction(buffer, callback) {
             callback(null, parsedData)
         },
         error: function (error) {
-            alert(error)
+            alert("En feil har oppstått. Vennligst oppdater siden.")
         }
     });
 }
@@ -68,10 +68,22 @@ function displayGraphs(probabilites){
     probabilityGraph.update()
 }
 
+/**
+ * Redrawing the symbols on canvas, used for when canvas has changed.
+ */
+function redrawCanvas(buffer, canvasController){
+    if(!Array.isArray(buffer) || canvasController === undefined){
+        return;
+
+    }
+    buffer.forEach((trace, i) => {
+        canvasController.markTraceGroups([i], '#A0A3A6')
+    })
+}
 /** 
  * Resets canvas size dynamically. Canvas needs fixed sizes.
 */
-function setCanvasSize(){
+function setCanvasSize(buffer, canvasController){
     var containerElement = $('.content-container')
     var canvasElement = $('#canvas')
 
@@ -79,17 +91,18 @@ function setCanvasSize(){
     canvasElement[0].width = containerElement.width()
     canvasElement[0].height = 600
 
+
     //To include color on full page
     var body = $(".page-container").css('min-height', window.innerHeight + 'px')
 
+    if(canvasController !== undefined){
+        canvasController.redrawBuffer()
+    } 
 }
 
 
 $(document).ready(function () {
 
-    //Canvas needs a fixed height and width, therefore set dynamic through js.
-    $(window).on('resize', setCanvasSize)
-    setCanvasSize()
 
 
     var equation = $("#latex");
@@ -102,15 +115,20 @@ $(document).ready(function () {
 
     var canvas = new SymbolCanvas(canvasElement[0]);
 
-    var canvasController = new CanvasController(canvas);
+    var canvasController = new CanvasController(canvas, { eraseRadius: 30 });
 
     var currentPrediction;
     var currentBuffer;
 
+    //Canvas needs a fixed height and width, therefore set dynamic through js.
+    $(window).on('resize', () => setCanvasSize(currentBuffer, canvasController))
+    setCanvasSize(currentBuffer, canvasController)
+    
     //Handle erasing
     eraseButton.click(function(e) {
         canvasController.options.isErasing = !Boolean(canvasController.options.isErasing)
         eraseButton.toggleClass('selected-erase')
+        canvasElement.toggleClass('canvas-erase')
     })
 
     // Fetch from Ag("Released", buffer)PI when canvascontroller returns a buffer. (User is done typing)
@@ -137,6 +155,8 @@ $(document).ready(function () {
 
         //Find the corresponding symbol returned from server. (Server includes which traces were included to group in tracegroup)
         const matchingSymbol = currentPrediction.probabilites.find(proba => {
+            console.log("Finding matching sybmol", proba.labels[0], "Trace group", proba.tracegroup, "Clicked index", clickedIndex)
+            console.log("Buffer length", currentBuffer)
             return proba.tracegroup.indexOf(clickedIndex) >= 0
         });
 

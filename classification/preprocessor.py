@@ -58,12 +58,12 @@ class Preprocessor:
 
         # Add points to all the traces
         for i, trace in enumerate(traces):
-            new_trace = self.add_points_to_trace(trace, len(trace)*2)
+            new_trace = self.add_points_to_trace(trace, len(trace)*6)
             traces_with_added_points.append(new_trace)
 
         # Iterate through all possible pairs of traces
-        for i, trace in enumerate(traces[:-1]):
-            for j, trace2 in enumerate(traces[i+1:]):
+        for i, trace in enumerate(traces_with_added_points[:-1]):
+            for j, trace2 in enumerate(traces_with_added_points[i+1:]):
 
                 # Iterate through all possible pairs of points
                 for coord1 in trace:

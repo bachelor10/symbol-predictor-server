@@ -17,9 +17,12 @@ class rest_handler(web.RequestHandler):
     def post(self):
         body = json.loads(self.request.body)
 
+        #with open("test/recursive_root.json", "w") as outfile:
+        #    json.dump(body, outfile)
+
         buffer = body['buffer']
 
-        truth = None;
+        truth = None
 
         try:
             truth = body['truth']
@@ -35,7 +38,7 @@ class rest_handler(web.RequestHandler):
                     buffer_array[i].append([int(coords['x']), int(coords['y'])])
 
 
-        buffer_correct = [i for i in buffer_array if i != []]
+        buffer_correct = [i for i in buffer_array if len(i) > 1] # Remove single points
 
         expression = Expression(predictor)
 
