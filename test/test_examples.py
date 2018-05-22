@@ -76,15 +76,16 @@ class TestExampleBuffers(unittest.TestCase):
         self.fetch_json_fromfile('test/multi_notation.json')
         latex_data = self.expression.to_latex()
         self.assertEqual('\\frac{\\sqrt{3-2}^{x}}{\\pi -\\sigma \\cdot \\beta }', latex_data)
-    """
-    def test_failing_buffer(self):
-        self.fetch_json_fromfile('test/failing_buffer.json')
-        latex_data = self.expression.to_latex()
-        print(latex_data)
-        print(self.probabilities)
 
-        self.assertEqual('1', latex_data)
-    """
+    def test_latex_response_function(self):
+        self.fetch_json_fromfile('test/function.json')
+        latex_data = self.expression.to_latex()
+        self.assertEqual('f(x)=\\frac{x}{2}', latex_data)
+
+    def test_latex_response_special_symbols(self):
+        self.fetch_json_fromfile('test/special_symbols.json')
+        latex_data = self.expression.to_latex()
+        self.assertEqual('\\beta \\sigma \\pi \\alpha \\infty \\gamma \\mu \\theta ', latex_data)
 
 if __name__ == '__main__':
     unittest.main()

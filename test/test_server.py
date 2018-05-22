@@ -64,59 +64,6 @@ class TestServerBoot(AsyncHTTPTestCase):
 #         )
 #         print(resp)
 #         self.assertEqual(resp.code, 200)
-from classification.predictor import Predictor
-predictern = Predictor(os.getcwd() + '/classification/combined_model.h5')
-
-
-
-# This class tests some of the algorithms directly used by our server
-class TestBasicBackend(unittest.TestCase):
-    def fetch_json_fromfile(self, filename):
-        with open(filename, 'r') as readfile:
-            self.data = json.load(readfile)
-        
-        buffer = self.data['buffer']
-        buffer_array = []
-        
-        for i, trace in enumerate(buffer):
-            buffer_array.append([])
-        
-            if trace:
-                for coords in trace:
-                    buffer_array[i].append([int(coords['x']), int(coords['y'])])
-        
-        buffer_correct = [i for i in buffer_array if i != []]
-        
-        from classification.expression import Expression
-        expression = Expression(self.predictor)
-        
-        self.expression = expression
-        self.probabilities = expression.feed_traces(buffer_correct, None)
-
-
-    def setUp(self):
-        self.predictor = predictern
-        self.data = None
-        self.expression = None
-        self.probabilities = None
-        self.fetch_json_fromfile('test/4+3.json')
-
-    def test_latex_response_simple(self):
-        self.fetch_json_fromfile('test/4+3.json')
-        latex_data = self.expression.to_latex()
-        self.assertEqual('4+3', latex_data)
-
-    def test_latex_response_fraction(self):
-        self.fetch_json_fromfile('test/frac{3_4x}.json')
-        latex_data = self.expression.to_latex()
-        self.assertEqual('\\frac{3}{4x}', latex_data)
-
-    def test_latex_response_exponents(self):
-        self.fetch_json_fromfile('test/exp{2x+57}.json')
-        latex_data = self.expression.to_latex()
-        self.assertEqual('2^{x}\cdot 5^{7}', latex_data)
-
-
 
 
 if __name__ == '__main__':
