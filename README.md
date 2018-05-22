@@ -8,6 +8,8 @@ Do the following steps to run the server:
 
 1. Clone the repository (```git clone ...```)
 2. Install the dependencies (```pip install -r /path/to/requirements.txt```)
+3. Download the [combined_model](https://www.dropbox.com/sh/2v1fo8inmwb4h3l/AAAaqZ5HPyS4hNoGEpnMi3FPa?dl=0).
+4. Add the model to the folder ```/classification/```
 3. Run the server (```python /path/to/server.py```)
 
 ## API
