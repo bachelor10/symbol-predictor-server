@@ -2,6 +2,10 @@
 
 This a server including a simple API to run prediction on mathematical symbols and expressions.
 
+## Prerequisites
+1. Python 3
+2. Pip (to your python 3 version)
+
 ## Running the server
 
 Do the following steps to run the server:
@@ -11,6 +15,13 @@ Do the following steps to run the server:
 3. Download the [combined_model](https://www.dropbox.com/sh/2v1fo8inmwb4h3l/AAAaqZ5HPyS4hNoGEpnMi3FPa?dl=0).
 4. Add the model to the folder ```/classification/```
 5. Run the server (```python /path/to/server.py```)
+
+
+## Running the tests
+
+To run the tests run the following command from the root directory:
+
+```python -m unittest discover test/```
 
 ## API
 The server has a single endpoint, a POST handler the on /api endpoint
@@ -96,9 +107,3 @@ response = {
     }
 }
 ```
-
-## Running the tests
-
-To run the tests run the following command from the root directory:
-
-```python -m unittest discovery test/```
