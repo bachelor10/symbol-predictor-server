@@ -101,4 +101,4 @@ response = {
 
 To run the tests run the following command from the root directory:
 
-```python3 -m unittest discovery test/```
+```python -m unittest discovery test/```
