@@ -36,7 +36,7 @@ class TestExampleBuffers(unittest.TestCase):
         self.expression = None
         self.probabilities = None
         self.fetch_json_fromfile('test/4+3.json')
-    
+
     def test_latex_response_simple(self):
         self.fetch_json_fromfile('test/4+3.json')
         latex_data = self.expression.to_latex()
@@ -86,6 +86,11 @@ class TestExampleBuffers(unittest.TestCase):
         self.fetch_json_fromfile('test/special_symbols.json')
         latex_data = self.expression.to_latex()
         self.assertEqual('\\beta \\sigma \\pi \\alpha \\infty \\gamma \\mu \\theta ', latex_data)
+    
+    def test_latex_response_overlap(self):
+        self.fetch_json_fromfile('test/x.json')
+        latex_data = self.expression.to_latex()
+        self.assertEqual('x', latex_data)
 
 if __name__ == '__main__':
     unittest.main()

@@ -58,13 +58,18 @@ class Preprocessor:
 
         # Add points to all the traces
         for i, trace in enumerate(traces):
-            new_trace = self.add_points_to_trace(trace, len(trace)*6)
+            new_trace = self.add_points_to_trace(trace, len(trace)*3)
             traces_with_added_points.append(new_trace)
 
-        # Iterate through all possible pairs of traces
+
         for i, trace in enumerate(traces_with_added_points[:-1]):
             for j, trace2 in enumerate(traces_with_added_points[i+1:]):
-
+                
+                for coord1 in trace:
+                    if np.min(np.abs(trace2[:, 0] - coord1[0])) < 7 and np.min(np.abs(trace2[:, 1] - coord1[1])) < 7:
+                        overlap_pairs.add((i, i+j+1))
+            
+                """
                 # Iterate through all possible pairs of points
                 for coord1 in trace:
                     for coord2 in trace2:
@@ -72,7 +77,8 @@ class Preprocessor:
                         # Calculate the distance
                         if math.hypot(coord2[0] - coord1[0], coord2[1] - coord1[1]) < 10:
                             overlap_pairs.add((i, i+j+1))
-        
+                """
+
         return overlap_pairs
 
     
