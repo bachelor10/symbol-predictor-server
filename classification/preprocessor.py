@@ -56,29 +56,59 @@ class Preprocessor:
 
         traces_with_added_points = []
 
+        center_values = []
+
         # Add points to all the traces
         for i, trace in enumerate(traces):
             new_trace = self.add_points_to_trace(trace, len(trace)*3)
             traces_with_added_points.append(new_trace)
 
+        for trace in traces_with_added_points:
+            center_values.append(((np.max(trace[:, 0]) + np.min(trace[:,0])) / 2, ((np.max(trace[:, 1]) + np.min(trace[:, 1])) / 2)))
+        
 
-        for i, trace in enumerate(traces_with_added_points[:-1]):
+        distances = []
+
+        for i, values in enumerate(center_values):
+            dist_calc = []
+
+            for j, sec_value in enumerate(center_values):
+                if j != i:
+                    dist_calc.append([j, math.hypot(sec_value[0] - values[0], sec_value[1] - values[1])])
+
+            sorted_dist = np.array(sorted(dist_calc, key=lambda tup: tup[1])[:6])
+
+            distances.append(sorted_dist)
+
+
+        for i, trace in enumerate(traces_with_added_points):
+
+            counter = i
             for j, trace2 in enumerate(traces_with_added_points[i+1:]):
-                
+                counter += 1
+                """
                 for coord1 in trace:
                     if np.min(np.abs(trace2[:, 0] - coord1[0])) < 7 and np.min(np.abs(trace2[:, 1] - coord1[1])) < 7:
                         overlap_pairs.add((i, i+j+1))
-            
                 """
-                # Iterate through all possible pairs of points
+                """
                 for coord1 in trace:
                     for coord2 in trace2:
 
                         # Calculate the distance
                         if math.hypot(coord2[0] - coord1[0], coord2[1] - coord1[1]) < 10:
-                            overlap_pairs.add((i, i+j+1))
+                            overlap_pairs.add((i, counter))
                 """
+                if counter in distances[i][:, 0]:
+                    
+                    # Iterate through all possible pairs of points
+                    for coord1 in trace:
+                        for coord2 in trace2:
 
+                            # Calculate the distance
+                            if math.hypot(coord2[0] - coord1[0], coord2[1] - coord1[1]) < 10:
+                                overlap_pairs.add((i, counter))
+                
         return overlap_pairs
 
     

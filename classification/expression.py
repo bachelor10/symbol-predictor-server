@@ -22,7 +22,6 @@ class Expression:
         # Find the overlapping traces
         overlap_pairs = self.preprocessor.find_overlap_pairs(traces)
         
-        #print("after find overlap","--- %s seconds ---" % (time.time() - start_time))
 
 
         # Create groups of traces, each group represents a symbol
