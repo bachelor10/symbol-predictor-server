@@ -47,7 +47,7 @@ class Predictor:
             'values': values
         }, type_truth
 
-
+    # https://gist.github.com/perrygeo/4512375
     def scale_linear_bycolumn(self, rawpoints, high=24, low=0, ma=0, mi=0):
         # Scales a input list of numerical values to a given interval
         mins = mi
